@@ -1,0 +1,17 @@
+---
+name: reviewdog
+on:  # yamllint disable-line rule:truthy
+  push:
+
+jobs:
+
+  yamllint:
+    name: runner / yamllint
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: yamllint
+        uses: reviewdog/action-yamllint@v1.2
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-check
