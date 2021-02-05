@@ -84,7 +84,9 @@ ___
 
          (we use Python in our example, but you can generate code in many other languages too)
       3. Install our new Python client SDK library:
+
          `cd python-client-generated/ && sudo python setup.py install && cd ../`
+         
     2. Now we have our Python client SDK, we can go ahead and implement the underlying code for our Gauge spec:
          
        ```
@@ -170,6 +172,11 @@ ___
 - Generate the Python client SDK code:
 
   `openapi-generator-cli generate -i openapi.yaml -g python -o ./python-client-generated`
+
+- Install the generated Python client SDK code:
+
+  `cd python-client-generated/ && sudo python setup.py install && cd ../`
+
 - [Prism](https://stoplight.io/prism)
 - Start Prism: `prism mock openapi.yaml`
 ### Run the spec against the mock server
