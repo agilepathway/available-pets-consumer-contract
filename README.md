@@ -168,7 +168,7 @@ ___
 
 ## Running the spec
 ### Prerequisites
-- [OpenAPI Generator](https://openapi-generator.tech)
+- [Install OpenAPI Generator](https://openapi-generator.tech/docs/installation)
 - Generate the Python client SDK code:
 
   `openapi-generator-cli generate -i openapi.yaml -g python -o ./python-client-generated`
@@ -177,7 +177,7 @@ ___
 
   `cd python-client-generated/ && sudo python setup.py install && cd ../`
 
-- [Prism](https://stoplight.io/prism)
+- [Install Prism](https://meta.stoplight.io/docs/prism/docs/getting-started/01-installation.md)
 - Start Prism: `prism mock openapi.yaml`
 ### Run the spec against the mock server
 - `gauge run --env mock specs`
