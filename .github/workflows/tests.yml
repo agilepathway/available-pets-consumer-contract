@@ -53,3 +53,9 @@ jobs:
 
       - name: Run Gauge specs against ${{ matrix.gauge-env }} OpenAPI server
         run: gauge run --env ${{ matrix.gauge-env }} specs
+
+      - name: Upload Gauge test report
+        uses: actions/upload-artifact@v2
+        with:
+          name: gauge-html-report
+          path: reports/html-report/
