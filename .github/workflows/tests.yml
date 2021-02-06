@@ -1,6 +1,9 @@
 ---
 on:  # yamllint disable-line rule:truthy
+  # Run the tests on every push, and also at 3am every night
   push:
+  schedule:
+    - cron: '0 3 * * *'  # * is a special character in YAML so you have to quote this string
 
 name: Gauge
 jobs:
