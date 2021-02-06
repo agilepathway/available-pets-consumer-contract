@@ -178,7 +178,10 @@ ___
   `cd python-client-generated/ && sudo python setup.py install && cd ../`
 
 - [Install Prism](https://meta.stoplight.io/docs/prism/docs/getting-started/01-installation.md)
-- Start Prism: `prism mock openapi.yaml`
+- Start Prism:
+
+  `prism mock openapi.yaml`
+  
 ### Run the spec against the mock server
 - `gauge run --env mock specs`
 ### Run the spec against the real server
