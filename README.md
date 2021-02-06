@@ -2,7 +2,7 @@
 
 [![Gauge Badge](https://gauge.org/Gauge_Badge.svg)](https://gauge.org)
 
-[![Gauge](https://github.com/agilepathway/gauge-openapi-example/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/gauge-openapi-example/actions?query=workflow%3A%22Gauge+specs%22%3Apush+branch%3Amaster)
+[![Gauge](https://github.com/agilepathway/gauge-openapi-example/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/gauge-openapi-example/actions?query=workflow%3A%22Gauge+specs%22+branch%3Amaster)
 [![reviewdog](https://github.com/agilepathway/gauge-openapi-example/workflows/reviewdog/badge.svg)](https://github.com/agilepathway/gauge-openapi-example/actions?query=workflow%3Areviewdog+event%3Apush+branch%3Amaster)
 [![License](https://img.shields.io/github/license/agilepathway/gauge-openapi-example?color=blue)](LICENSE)
 
