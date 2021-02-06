@@ -1,12 +1,10 @@
 # gauge-openapi-example
 
-[![Gauge Badge](https://gauge.org/Gauge_Badge.svg)](https://gauge.org)
-
+[![Gauge Badge](https://gauge.org/Gauge_Badge.svg)](https://gauge.org) 
 [![Gauge](https://github.com/agilepathway/gauge-openapi-example/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/gauge-openapi-example/actions?query=workflow%3A%22Gauge+specs%22+branch%3Amaster)
 [![reviewdog](https://github.com/agilepathway/gauge-openapi-example/workflows/reviewdog/badge.svg)](https://github.com/agilepathway/gauge-openapi-example/actions?query=workflow%3Areviewdog+event%3Apush+branch%3Amaster)
 [![License](https://img.shields.io/github/license/agilepathway/gauge-openapi-example?color=blue)](LICENSE)
-
-[![OpenAPI Validator](https://validator.swagger.io/validator?url=https://raw.githubusercontent.com/agilepathway/gauge-openapi-example/master/openapi.yaml)](./openapi.yaml)
+[<img src="https://github.com/agilepathway/gauge-openapi-example/wiki/images/openapi.png" width="87">](./openapi.yaml)[![OpenAPI Validator](https://validator.swagger.io/validator?url=https://raw.githubusercontent.com/agilepathway/gauge-openapi-example/master/openapi.yaml)](./openapi.yaml)
 
 Example of how [Gauge](https://gauge.org/) and [OpenAPI](https://www.openapis.org/about) play nicely
 together to produce [living documentation](https://www.infoq.com/articles/book-review-living-documentation/) for APIs.
