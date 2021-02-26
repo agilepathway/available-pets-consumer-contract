@@ -42,42 +42,9 @@ ___
 
 3. Now, let's say that implementing this feature requires a new [REST API microservice](https://microservices.io/patterns/microservices.html).
 
-   Create an OpenAPI specification to describe our new API, e.g:
+   Create an OpenAPI specification to describe our new API, e.g. the [`openapi.yaml`](./openapi.yaml) in this repo.
 
-   ```
-    openapi: 3.0.1
-    info:
-      title: Swagger Petstore
-      description: This is a sample server Petstore server.
-    license:
-      name: Apache 2.0
-      url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-    version: 1.0.0
-    paths:
-      /pet/findByStatus:
-        get:
-          tags:
-            - pet
-          summary: Finds Pets by status
-          description: Multiple status values can be provided with comma separated strings
-          operationId: findPetsByStatus
-          parameters:
-            - name: status
-              in: query
-              description: Status values that need to be considered for filter
-              required: true
-              style: form
-              explode: true
-              schema:
-                type: array
-                items:
-                  type: string
-                  default: available
-                enum:
-                  - available
-                  - pending
-                  - sold
-   ```
+   (The OpenAPI specification file can be in YAML format or JSON format, either is fine.)
    
 4. Even though we don't have an implementation for our OpenAPI spec yet, we already have all we need to go ahead and implement the Gauge spec.
    1. Generate an [SDK client](https://nordicapis.com/what-is-the-difference-between-an-api-and-an-sdk/) for our OpenAPI spec.
