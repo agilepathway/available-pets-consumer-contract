@@ -47,12 +47,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Install Prism
-        run: npm install -g @stoplight/prism-cli
         if: matrix.gauge-env == 'mock'
+        run: npm install -g @stoplight/prism-cli
 
       - name: Start Prism
-        run: prism mock openapi.yaml &
         if: matrix.gauge-env == 'mock'
+        run: prism mock openapi.yaml &
 
       - name: Run Gauge specs against ${{ matrix.gauge-env }} OpenAPI server
         run: gauge run --env ${{ matrix.gauge-env }} specs
