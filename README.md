@@ -10,17 +10,17 @@ Example of how [Gauge](https://gauge.org/) and [OpenAPI](https://www.openapis.or
 together to produce [living documentation](https://www.infoq.com/articles/book-review-living-documentation/) for APIs.
 
 ___
-* [Example workflow, showing one possible approach](#example-workflow-showing-one-possible-approach)
+* [Example workflow](#example-workflow)
 * [Benefits of this approach](#benefits-of-this-approach)
 * [Running the spec](#running-the-spec)
   * [Prerequisites](#prerequisites)
   * [Run the spec against the mock server](#run-the-spec-against-the-mock-server)
   * [Run the spec against the real server](#run-the-spec-against-the-real-server)
+  * [Run the spec using Prism as a validation proxy against the real server](#run-the-spec-using-prism-as-a-validation-proxy-against-the-real-server)
 * [Notes](#notes)
-* [Next steps](#next-steps)
 ___
 
-## Example workflow, showing one possible approach
+## Example workflow
 
 1. Have a collaborative story refinement session to come up with 
    [specification examples](https://gojko.net/2008/11/04/specifying-with-examples/), using 
@@ -44,7 +44,7 @@ ___
 
    Create an OpenAPI specification to describe our new API, e.g. the [`openapi.yaml`](./openapi.yaml) in this repo.
 
-   (The OpenAPI specification file can be in YAML format or JSON format, either is fine.)
+   (The OpenAPI specification file can be YAML or JSON)
    
 4. Even though we don't have an implementation for our OpenAPI spec yet, we already have all we need to go ahead and implement the Gauge spec.
    1. Generate an [SDK client](https://nordicapis.com/what-is-the-difference-between-an-api-and-an-sdk/) for our OpenAPI spec.
@@ -97,27 +97,29 @@ ___
    [Prism](https://stoplight.io/prism) is a mock server that effortlessly serves example
    responses based on an OpenAPI spec.
    1. [Install Prism](https://meta.stoplight.io/docs/prism/docs/getting-started/01-installation.md)
-   2. Start Prism: `prism mock openapi.yaml`
    3. Setup a Gauge [environment variable](https://docs.gauge.org/configuration.html#using-environments-in-a-gauge-project) to point our Gauge spec implementation at the Prism
    mock server that we just started:
 
-      Create an `env/mock/openapi.properties` file with this content: 
+      Create an `env/mock/openapi.properties` file and also an
+      `env/validation-proxy/openapi.properties` file, both with this content: 
       
       `OPENAPI_HOST = http://127.0.0.1:4010`
-        
-      
-
-
 
 6. Now we can run our Gauge spec against our mock environment, and it will pass :-)
-
-   `gauge run --env mock specs`
+   - `prism mock openapi.yaml`
+   - `gauge run --env mock specs`
 
 7. We can now go ahead and implement the API, based on our OpenAPI spec of course.
 
    When we have done so, we can run our Gauge spec against it too, without any modification:
 
-   `gauge run specs`
+   - `gauge run specs`
+
+   Even better, we can use Prism as a validation proxy against the real server, which verifies
+   that the implementation is fully compliant with the OpenAPI spec:
+
+   - `prism proxy openapi.yaml https://petstore.swagger.io/v2`
+   - `gauge run --env validation-proxy specs`
 
 ## Benefits of this approach
 
@@ -135,9 +137,11 @@ ___
    - [Living documentation](https://www.infoq.com/articles/book-review-living-documentation/), providing a single source of truth. This API documentation stays up to date because it is executable, and is only written in one place (rather than analysts, developers and testers all writing their own separate documentation.)
 6. API [black box testing](https://resources.whitesourcesoftware.com/blog-whitesource/black-box-testing)
    - provides great test coverage
-   - ensures a [consumer-driven](https://www.martinfowler.com/articles/consumerDrivenContracts.html) approach
    - decoupled from implementation, so does not get in the way of implementation
-7. Enables different languages to be used easily - can choose Python for the client SDK and Java for the server implementation, for instance
+7. [Consumer-Driven-Contract-Testing](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md#end-to-end-contract-testing)
+   - allows service design to be driven by the verified needs of consumers
+   - [ensures that consumer test stubs stay in sync with the implementation](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md#assisting-api-consumer-integration)
+8. Enables different languages to be used easily - can choose Python for the client SDK and Java for the server implementation, for instance
 
 ## Running the spec
 ### Prerequisites
@@ -151,20 +155,20 @@ ___
   `cd python-client-generated/ && sudo python setup.py install && cd ../`
 
 - [Install Prism](https://meta.stoplight.io/docs/prism/docs/getting-started/01-installation.md)
-- Start Prism:
-
-  `prism mock openapi.yaml`
   
 ### Run the spec against the mock server
+- `prism mock openapi.yaml`
 - `gauge run --env mock specs`
+
 ### Run the spec against the real server
 - `gauge run specs`
+
+### Run the spec using Prism as a validation proxy against the real server
+- `prism proxy openapi.yaml https://petstore.swagger.io/v2`
+- `gauge run --env validation-proxy specs`
 
 
 ## Notes
 
-- This example uses Gauge, but other natural-language specification tools (e.g. 
-[Cucumber](https://cucumber.io/), [SpecFlow](https://specflow.org/) etc) will be fine too.
-
-## Next steps
-- This example does not cover how to keep everything in sync when the API changes, yet.  There are many techniques to do that, and the next step will be to extend this example illustrating one way that it can be done.
+- This example uses [Gauge](https://gauge.org/), but other natural-language specification tools 
+(e.g. [Cucumber](https://cucumber.io/), [SpecFlow](https://specflow.org/) etc) would be fine too.
