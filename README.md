@@ -115,7 +115,7 @@ ___
 
    - `gauge run specs`
 
-   Even better, we can use Prism as a validation proxy against the real server, which verifies
+   Even better, we can [use Prism as a validation proxy against the real server](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md), which verifies
    that the implementation is fully compliant with the OpenAPI spec:
 
    - `prism proxy openapi.yaml https://petstore.swagger.io/v2`
