@@ -1,13 +1,16 @@
-# gauge-openapi-example
+# java-gauge-openapi-example
 
 [![Gauge Badge](https://gauge.org/Gauge_Badge.svg)](https://gauge.org) 
-[![Gauge](https://github.com/agilepathway/gauge-openapi-example/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/gauge-openapi-example/actions?query=workflow%3A%22Gauge+specs%22+branch%3Amaster)
-[![reviewdog](https://github.com/agilepathway/gauge-openapi-example/workflows/reviewdog/badge.svg)](https://github.com/agilepathway/gauge-openapi-example/actions?query=workflow%3Areviewdog+event%3Apush+branch%3Amaster)
-[![License](https://img.shields.io/github/license/agilepathway/gauge-openapi-example?color=blue)](LICENSE)
-[<img src="https://github.com/agilepathway/gauge-openapi-example/wiki/images/openapi.png" width="87">](./openapi.yaml)[![OpenAPI Validator](https://validator.swagger.io/validator?url=https://raw.githubusercontent.com/agilepathway/gauge-openapi-example/master/openapi.yaml)](./openapi.yaml)
+[![Gauge](https://github.com/agilepathway/java-gauge-openapi-example/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/java-gauge-openapi-example/actions?query=workflow%3A%22Gauge+specs%22+branch%3Amaster)
+[![reviewdog](https://github.com/agilepathway/java-gauge-openapi-example/workflows/reviewdog/badge.svg)](https://github.com/agilepathway/java-gauge-openapi-example/actions?query=workflow%3Areviewdog+event%3Apush+branch%3Amaster)
+[![License](https://img.shields.io/github/license/agilepathway/java-gauge-openapi-example?color=blue)](LICENSE)
+[<img src="https://github.com/agilepathway/gauge-openapi-example/wiki/images/openapi.png" width="87">](./openapi.yaml)[![OpenAPI Validator](https://validator.swagger.io/validator?url=https://raw.githubusercontent.com/agilepathway/java-gauge-openapi-example/master/openapi.yaml)](./openapi.yaml)
 
-Example of how [Gauge](https://gauge.org/) and [OpenAPI](https://www.openapis.org/about) play nicely
+Example in Java of how [Gauge](https://gauge.org/) and [OpenAPI](https://www.openapis.org/about) play nicely
 together to produce [living documentation](https://www.infoq.com/articles/book-review-living-documentation/) for APIs.
+
+NB There is also a separate [Python example repository](https://github.com/agilepathway/gauge-openapi-example),
+demonstrating the same workflow but using Python as the test implementation language instead of Java.
 
 ___
 * [Example workflow](#example-workflow)
@@ -53,46 +56,67 @@ ___
       1. [Install OpenAPI Generator](https://openapi-generator.tech/docs/installation)
       2. Generate the client SDK code, e.g:
 
-         `openapi-generator-cli generate -i openapi.yaml -g python -o ./python-client-generated`
+         `openapi-generator-cli generate -i openapi.yaml -g java -o ./java-client-generated`
 
-         (we use Python in our example, but you can generate code in many other languages too)
-      3. Install our new Python client SDK library:
+         (we use Java in our example, but you can generate code in many other languages too)
+      3. Install our new Java client SDK library:
 
-         `cd python-client-generated/ && sudo python setup.py install && cd ../`
+         `cd java-client-generated/ && mvn clean package && cd ../`
+
+         In `env/default/java.properties`, set `gauge_additional_libs` as follows:
+
+         `gauge_additional_libs = libs/*,java-client-generated/target/*,java-client-generated/target/lib/*`
          
-    2. Now we have our Python client SDK, we can go ahead and implement the underlying code for our Gauge spec:
+    2. Now we have our Java client SDK, we can go ahead and implement the underlying code for our Gauge spec:
          
        ```
-       from getgauge.python import step
-       import openapi_client
-       from openapi_client.api import pet_api
-       import os
-       
-       
-       @step("There is a pet named <pet_name> available in the pet store")
-       def there_is_an_available_pet_named(pet_name):
-           with openapi_client.ApiClient(configuration()) as api_client:
-               api_instance = pet_api.PetApi(api_client)
-               available_pets = api_instance.find_pets_by_status(["available"])
-               print(available_pets)
-               assert any(pet.name == pet_name for pet in available_pets)
-       
-       
-       def configuration():
-           openapi_host = os.environ.get("OPENAPI_HOST")
-           if openapi_host is None:
-               configuration = openapi_client.Configuration()
-           else:
-               configuration = openapi_client.Configuration(host=openapi_host)
-       
-           configuration.access_token = "YOUR_ACCESS_TOKEN"
-           return configuration
+       import static org.assertj.core.api.Assertions.assertThat;
+
+       import java.util.Arrays;
+       import java.util.List;
+
+       import com.thoughtworks.gauge.Step;
+
+       import org.openapitools.client.ApiClient;
+       import org.openapitools.client.ApiException;
+       import org.openapitools.client.Configuration;
+       import org.openapitools.client.api.PetApi;
+       import org.openapitools.client.model.Pet;
+
+       public class StepImplementation {
+
+           @Step("There is a pet named <pet> available in the pet store")
+           public void verifyPetIsAvailable(String petName) throws ApiException {
+               assertThat(availablePets()).extracting("name").contains(petName);
+           }
+
+           public List<Pet> availablePets() throws ApiException {
+               String available = Pet.StatusEnum.AVAILABLE.getValue();
+               return petApi().findPetsByStatus(Arrays.asList(available));
+           }
+
+           public PetApi petApi() {
+               return new PetApi(apiClient());
+           }
+
+           public ApiClient apiClient() {
+               ApiClient client = Configuration.getDefaultApiClient();
+               String openApiHost = System.getenv("OPENAPI_HOST");
+               if (openApiHost != null) {
+                   System.out.println("Setting server URL to: " + openApiHost);
+                   client.setBasePath(openApiHost);
+               }
+               client.setAccessToken("YOUR_ACCESS_TOKEN");
+               return client;
+           }
+
+       }
        ```
 
-       We did not have to write much code at all, as the Python client SDK provides all
+       We did not have to write much code at all, as the Java client SDK provides all
        the boilerplate for us.
     
-5. If we ran the Gauge spec now it would fail, because there is no implementation of the OpenAPI spec for the Python Client SDK to communicate with. Enter Prism.
+5. If we ran the Gauge spec now it would fail, because there is no implementation of the OpenAPI spec for the Java Client SDK to communicate with. Enter Prism.
 
    [Prism](https://stoplight.io/prism) is a mock server that effortlessly serves example
    responses based on an OpenAPI spec.
@@ -146,13 +170,17 @@ ___
 ## Running the spec
 ### Prerequisites
 - [Install OpenAPI Generator](https://openapi-generator.tech/docs/installation)
-- Generate the Python client SDK code:
+- Generate the Java client SDK code:
 
-  `openapi-generator-cli generate -i openapi.yaml -g python -o ./python-client-generated`
+  `openapi-generator-cli generate -i openapi.yaml -g java -o ./java-client-generated`
 
-- Install the generated Python client SDK code:
+- Install the generated Java client SDK code:
 
-  `cd python-client-generated/ && sudo python setup.py install && cd ../`
+  `cd java-client-generated/ && mvn clean package && cd ../`
+
+   In `env/default/java.properties`, set `gauge_additional_libs` as follows:
+
+   `gauge_additional_libs = libs/*,java-client-generated/target/*,java-client-generated/target/lib/*`
 
 - [Install Prism](https://meta.stoplight.io/docs/prism/docs/getting-started/01-installation.md)
   

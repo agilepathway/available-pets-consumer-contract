@@ -8,7 +8,7 @@ USER root
 # Install Gauge
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -SsL https://downloads.gauge.org/stable | sh \
-    && su codespace -c "gauge install python" \
+    && su codespace -c "gauge install java" \
     && su codespace -c "gauge install html-report"
 
 USER codespace
