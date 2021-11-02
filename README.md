@@ -145,6 +145,10 @@ ___
    - `prism proxy openapi.yaml https://petstore.swagger.io/v2`
    - `gauge run --env validation-proxy specs`
 
+   Unfortunately there is currently a bug with the OpenAPI Generator Java generator which makes it currently
+   incompatible with Prism when Prism is in validation proxy mode.  Given the bug it may be better to amend
+   this example not to use the OpenAPI Generator, and instead to roll our own Java client code.
+
 ## Benefits of this approach
 
 1. Collaborative - consumers, solution architects, developers, testers, analysts, Product Owner all have a natural interest in being involved.  This is a great silo breaker.
