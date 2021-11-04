@@ -1,41 +1,57 @@
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Arrays;
-import java.util.List;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import com.thoughtworks.gauge.Step;
 
-import org.openapitools.client.ApiClient;
-import org.openapitools.client.ApiException;
-import org.openapitools.client.Configuration;
-import org.openapitools.client.api.PetApi;
-import org.openapitools.client.model.Pet;
+import org.json.JSONArray;
 
 public class StepImplementation {
 
     @Step("There is a pet named <pet> available in the pet store")
-    public void verifyPetIsAvailable(String petName) throws ApiException {
-        assertThat(availablePets()).extracting("name").contains(petName);
+    public void verifyPetIsAvailable(String petName) {
+        JSONArray availablePets = requestAvailablePets();
+        Assertions.assertThat(availablePets).containsPetNamed(petName);
     }
 
-    public List<Pet> availablePets() throws ApiException {
-        String available = Pet.StatusEnum.AVAILABLE.getValue();
-        return petApi().findPetsByStatus(Arrays.asList(available));
+    private static JSONArray requestAvailablePets() {
+        return getJSONArrayResponse(getAvailablePetsRequest());
     }
 
-    public PetApi petApi() {
-        return new PetApi(apiClient());
+    private static HttpRequest getAvailablePetsRequest() {
+        String url = String.format("%s/pet/findByStatus?status=available", getOpenAPIHost());
+        return HttpRequest.newBuilder().header("Accept", "application/json").
+            header("Authorization", "Bearer YOUR_ACCESS_TOKEN").uri(URI.create(url)).build();
     }
 
-    public ApiClient apiClient() {
-        ApiClient client = Configuration.getDefaultApiClient();
-        String openApiHost = System.getenv("OPENAPI_HOST");
-        if (openApiHost != null) {
-            System.out.println("Setting server URL to: " + openApiHost);
-            client.setBasePath(openApiHost);
+    private static JSONArray getJSONArrayResponse(HttpRequest request) {
+        HttpResponse<String> rawResponse = send(request);
+        return new JSONArray(rawResponse.body());
+    }
+
+    private static HttpResponse<String> send(HttpRequest request) {
+        HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            verifySuccessfulResponse(response);
+            return response;
+        } catch (IOException | InterruptedException e) {
+            throw new IllegalStateException("Exception when sending request", e);
         }
-        client.setAccessToken("YOUR_ACCESS_TOKEN");
-        return client;
+    }
+
+    private static void verifySuccessfulResponse(HttpResponse<String> response) {
+        if (response.statusCode() > 299) {
+            String message = String.format("Expected 2xx response but got %1$s. Response body: %2$s",
+                    response.statusCode(), response.body());
+            throw new IllegalStateException(message);
+        }
+    }
+
+    private static String getOpenAPIHost() {
+        return System.getenv("OPENAPI_HOST");
     }
 
 }
