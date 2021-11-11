@@ -50,71 +50,27 @@ ___
    (The OpenAPI specification file can be YAML or JSON)
    
 4. Even though we don't have an implementation for our OpenAPI spec yet, we already have all we need to go ahead and implement the Gauge spec.
-   1. Generate an [SDK client](https://nordicapis.com/what-is-the-difference-between-an-api-and-an-sdk/) for our OpenAPI spec.
-      One of the really nice things about OpenAPI is that we can generate client and server code just from the spec.
-      We will use [OpenAPI Generator](https://openapi-generator.tech) to generate our client SDK code:
-      1. [Install OpenAPI Generator](https://openapi-generator.tech/docs/installation)
-      2. Generate the client SDK code, e.g:
+   
+   1. Write the implementation code for the Gauge spec in Java by treating the OpenAPI spec as a black-box. Here is an example (with just some of the code):
+   
+   ```java
+   public class StepImplementation {
 
-         `openapi-generator-cli generate -i openapi.yaml -g java -o ./java-client-generated`
+    @Step("There is a pet named <pet> available in the pet store")
+    public void verifyPetIsAvailable(String petName) {
+        JSONArray availablePets = requestAvailablePets();
+        Assertions.assertThat(availablePets).containsPetNamed(petName);
+    }
 
-         (we use Java in our example, but you can generate code in many other languages too)
-      3. Install our new Java client SDK library:
+    private static JSONArray requestAvailablePets() {
+        return getJSONArrayResponse(getAvailablePetsRequest());
+    }
 
-         `cd java-client-generated/ && mvn clean package && cd ../`
-
-         In `env/default/java.properties`, set `gauge_additional_libs` as follows:
-
-         `gauge_additional_libs = libs/*,java-client-generated/target/*,java-client-generated/target/lib/*`
-         
-    2. Now we have our Java client SDK, we can go ahead and implement the underlying code for our Gauge spec:
-         
-       ```
-       import static org.assertj.core.api.Assertions.assertThat;
-
-       import java.util.Arrays;
-       import java.util.List;
-
-       import com.thoughtworks.gauge.Step;
-
-       import org.openapitools.client.ApiClient;
-       import org.openapitools.client.ApiException;
-       import org.openapitools.client.Configuration;
-       import org.openapitools.client.api.PetApi;
-       import org.openapitools.client.model.Pet;
-
-       public class StepImplementation {
-
-           @Step("There is a pet named <pet> available in the pet store")
-           public void verifyPetIsAvailable(String petName) throws ApiException {
-               assertThat(availablePets()).extracting("name").contains(petName);
-           }
-
-           public List<Pet> availablePets() throws ApiException {
-               String available = Pet.StatusEnum.AVAILABLE.getValue();
-               return petApi().findPetsByStatus(Arrays.asList(available));
-           }
-
-           public PetApi petApi() {
-               return new PetApi(apiClient());
-           }
-
-           public ApiClient apiClient() {
-               ApiClient client = Configuration.getDefaultApiClient();
-               String openApiHost = System.getenv("OPENAPI_HOST");
-               if (openApiHost != null) {
-                   System.out.println("Setting server URL to: " + openApiHost);
-                   client.setBasePath(openApiHost);
-               }
-               client.setAccessToken("YOUR_ACCESS_TOKEN");
-               return client;
-           }
-
-       }
-       ```
-
-       We did not have to write much code at all, as the Java client SDK provides all
-       the boilerplate for us.
+    private static HttpRequest getAvailablePetsRequest() {
+        String url = "https://petstore.swagger.io/v2/pet/findByStatus?status=available";
+        return HttpRequest.newBuilder().header("Accept", "application/json").uri(URI.create(url)).build();
+    }
+   ```
     
 5. If we ran the Gauge spec now it would fail, because there is no implementation of the OpenAPI spec for the Java Client SDK to communicate with. Enter Prism.
 
@@ -144,10 +100,6 @@ ___
 
    - `prism proxy openapi.yaml https://petstore.swagger.io/v2`
    - `gauge run --env validation-proxy specs`
-
-   Unfortunately there is currently a bug with the OpenAPI Generator Java generator which makes it currently
-   incompatible with Prism when Prism is in validation proxy mode.  Given the bug it may be better to amend
-   this example not to use the OpenAPI Generator, and instead to roll our own Java client code.
 
 ## Benefits of this approach
 
