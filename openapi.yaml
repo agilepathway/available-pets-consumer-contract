@@ -672,9 +672,6 @@ components:
       xml:
         name: Tag
     Pet:
-      required:
-        - name
-        - photoUrls
       type: object
       properties:
         id:
