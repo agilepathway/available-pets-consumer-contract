@@ -1,4 +1,4 @@
-# java-gauge-openapi-example
+# java-openapi-provider
 
 [![Gauge Badge](https://gauge.org/Gauge_Badge.svg)](https://gauge.org) 
 [![Gauge](https://github.com/agilepathway/java-gauge-openapi-example/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/java-gauge-openapi-example/actions?query=workflow%3A%22Gauge+specs%22+branch%3Amaster)
@@ -6,8 +6,12 @@
 [![License](https://img.shields.io/github/license/agilepathway/java-gauge-openapi-example?color=blue)](LICENSE)
 [<img src="https://github.com/agilepathway/gauge-openapi-example/wiki/images/openapi.png" width="87">](./openapi.yaml)[![OpenAPI Validator](https://validator.swagger.io/validator?url=https://raw.githubusercontent.com/agilepathway/java-gauge-openapi-example/master/openapi.yaml)](./openapi.yaml)
 
-Example in Java of how [Gauge](https://gauge.org/) and [OpenAPI](https://www.openapis.org/about) play nicely
-together to produce [living documentation](https://www.infoq.com/articles/book-review-living-documentation/) for APIs.
+An example provider application in Java to demonstrate 
+[consumer-driven contract testing](https://www.martinfowler.com/articles/consumerDrivenContracts.html) in action, using
+[Specification by Example](https://gojko.net/2008/11/04/specifying-with-examples/) with [Gauge](https://gauge.org/),
+along with [OpenAPI](https://www.openapis.org/about) and [Prism](https://stoplight.io/prism).
+
+See also the companion [consumer web app](https://github.com/agilepathway/available-pets-consumer) to this provider.
 
 NB There is also a separate [Python example repository](https://github.com/agilepathway/gauge-openapi-example),
 demonstrating the same workflow but using Python as the test implementation language instead of Java.
@@ -15,7 +19,7 @@ demonstrating the same workflow but using Python as the test implementation lang
 ___
 * [Example workflow](#example-workflow)
 * [Benefits of this approach](#benefits-of-this-approach)
-* [Running the spec](#running-the-spec)
+* [Running the specs](#running-the-specs)
   * [Prerequisites](#prerequisites)
   * [Run the spec against the mock server](#run-the-spec-against-the-mock-server)
   * [Run the spec against the real server](#run-the-spec-against-the-real-server)
@@ -25,81 +29,67 @@ ___
 
 ## Example workflow
 
-1. Have a collaborative story refinement session to come up with 
-   [specification examples](https://gojko.net/2008/11/04/specifying-with-examples/), using 
-   [example mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/) for instance
+Read the
+[README in the consumer app](https://github.com/agilepathway/available-pets-consumer#workflow-for-consumer-driven-changes-to-the-provider-api)
+first, as this gives the all-important consumer-driven perspective.  Then come back here and read the description below
+of the workflow from the provider perspective.
 
-2. [Write up the specification examples in Gauge](https://docs.gauge.org/writing-specifications.html).
-
-   Using the example from this repo, we'd have the following Gauge spec written at this point:
+1. After using Specification by Example to drive their specification of a new feature (the ability to show which pets
+   are newly in the petstore, in our notional example), the consumer creates a feature branch in our provider repo and
+   modifies the [OpenAPI spec](./openapi.yaml) with their proposed change, i.e. adding `new` to the list of defined 
+   statuses:
 
    ```
-    # Pet store availability
-
-    ## Customers can see which pets are available in the pet store
-
-    * There is a pet named "doggie" available in the pet store
+   enum:
+      - available
+      - pending
+      - sold
+      - new
    ```
 
-   We don't write the underlying implementation for this Gauge spec yet, that will come below.
+2. The consumer also adds a specification on our provider repo, e.g.
 
-3. Now, let's say that implementing this feature requires a new [REST API microservice](https://microservices.io/patterns/microservices.html).
+   ```markdown
+   ## Customers can see which pets are new in the pet store
 
-   Create an OpenAPI specification to describe our new API, e.g. the [`openapi.yaml`](./openapi.yaml) in this repo.
-
-   (The OpenAPI specification file can be YAML or JSON)
-   
-4. Even though we don't have an implementation for our OpenAPI spec yet, we already have all we need to go ahead and implement the Gauge spec.
-   
-   1. Write the implementation code for the Gauge spec in Java by treating the OpenAPI spec as a black-box. Here is an example (with just some of the code):
-   
-   ```java
-   public class StepImplementation {
-
-    @Step("There is a pet named <pet> available in the pet store")
-    public void verifyPetIsAvailable(String petName) {
-        JSONArray availablePets = requestAvailablePets();
-        Assertions.assertThat(availablePets).containsPetNamed(petName);
-    }
-
-    private static JSONArray requestAvailablePets() {
-        return getJSONArrayResponse(getAvailablePetsRequest());
-    }
-
-    private static HttpRequest getAvailablePetsRequest() {
-        String url = "https://petstore.swagger.io/v2/pet/findByStatus?status=available";
-        return HttpRequest.newBuilder().header("Accept", "application/json").uri(URI.create(url)).build();
-    }
+   * There is a pet named "doggie" new in the pet store
    ```
-    
-5. If we ran the Gauge spec now it would fail, because there is no implementation of the OpenAPI spec for the Java Client SDK to communicate with. Enter Prism.
 
-   [Prism](https://stoplight.io/prism) is a mock server that effortlessly serves example
-   responses based on an OpenAPI spec.
-   1. [Install Prism](https://meta.stoplight.io/docs/prism/docs/getting-started/01-installation.md)
-   3. Setup a Gauge [environment variable](https://docs.gauge.org/configuration.html#using-environments-in-a-gauge-project) to point our Gauge spec implementation at the Prism
-   mock server that we just started:
+   Note that this spec is identical to the spec which the consumer also created in their consumer repo.  This is a good 
+   thing as it describes the same consistent API contract in both the consumer and provider (it's not a disaster if the
+   specs have slightly different wording due to step implementation differences, but it's a good goal to keep them the
+   same or as close to the same as possible).
 
-      Create an `env/mock/openapi.properties` file and also an
-      `env/validation-proxy/openapi.properties` file, both with this content: 
-      
-      `OPENAPI_HOST = http://127.0.0.1:4010`
+   If the consumer team have the capability to add the step implementation for this spec in our provider repo, they 
+   should go ahead and do so on the same feature branch.  The step implementation on the provider side is a 
+   black-box API test using Prism, so implementing it does not require any knowledge of the internals of the provider
+   application.  This is a nice instance of using
+   [innersource](https://resources.github.com/whitepapers/introduction-to-innersource/) principles.  If not, then it's
+   also fine for the implementation to be left to the provider.
 
-6. Now we can run our Gauge spec against our mock environment, and it will pass :-)
-   - `prism mock openapi.yaml`
-   - `gauge run --env mock specs`
+   Have a look at [the `new-pets` branch](https://github.com/agilepathway/java-openapi-provider/tree/new-pets) 
+   and you can see these changes added by the consumer in the most recent commits there.
 
-7. We can now go ahead and implement the API, based on our OpenAPI spec of course.
+   Let's look more closely at how Prism is helping us here.
+   [Prism](https://stoplight.io/prism) is a mock server that effortlessly serves example responses based just on our
+   OpenAPI spec. All it needs is the OpenAPI spec, nothing more, nothing less.  That's very powerful.
 
-   When we have done so, we can run our Gauge spec against it too, without any modification:
+   Our CI/CD pipeline uses Prism to run our Gauge specs on every push to every branch.  The tests run a couple of
+   times in different modes:
+   - mock mode: Prism is used as a mock server, i.e. our Gauge specs run against Prism with no interaction with the
+     real service
+   - [validation proxy mode](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md): Prism proxies
+     through to the real server and errors if there are any mismatches between the OpenAPI spec and what the real
+     server accepts and responds with.  This is incredibly powerful as it ensures that there is zero discrepancy
+     between the OpenAPI spec and the real service, in terms of the API contract expressed through our consumer-driven
+     Gauge specs.
+   
+   If we 
+   [look at the CI/CD pipeline for our `new-pets` branch](https://github.com/agilepathway/java-openapi-provider/runs/4272344093?check_suite_focus=true)
+   then we will see that the tests pass in mock mode and fail in validation proxy mode.  This is entirely expected and a good thing, as it indicates that we the provider need to go ahead and amend the microservice to make the failing test pass.  This is real consumer-driven development in action.
 
-   - `gauge run specs`
+3. So the provider can now go ahead and make the necessary changes to their microservice. 
 
-   Even better, we can [use Prism as a validation proxy against the real server](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md), which verifies
-   that the implementation is fully compliant with the OpenAPI spec:
-
-   - `prism proxy openapi.yaml https://petstore.swagger.io/v2`
-   - `gauge run --env validation-proxy specs`
 
 ## Benefits of this approach
 
@@ -123,7 +113,7 @@ ___
    - [ensures that consumer test stubs stay in sync with the implementation](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md#assisting-api-consumer-integration)
 8. Enables different languages to be used easily - can choose Python for the client SDK and Java for the server implementation, for instance
 
-## Running the spec
+## Running the specs
 ### Prerequisites
 - [Install OpenAPI Generator](https://openapi-generator.tech/docs/installation)
 - Generate the Java client SDK code:
