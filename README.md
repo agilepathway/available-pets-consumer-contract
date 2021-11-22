@@ -115,18 +115,6 @@ of the workflow from the provider perspective.
 
 ## Running the specs
 ### Prerequisites
-- [Install OpenAPI Generator](https://openapi-generator.tech/docs/installation)
-- Generate the Java client SDK code:
-
-  `openapi-generator-cli generate -i openapi.yaml -g java -o ./java-client-generated`
-
-- Install the generated Java client SDK code:
-
-  `cd java-client-generated/ && mvn clean package && cd ../`
-
-   In `env/default/java.properties`, set `gauge_additional_libs` as follows:
-
-   `gauge_additional_libs = libs/*,java-client-generated/target/*,java-client-generated/target/lib/*`
 
 - [Install Prism](https://meta.stoplight.io/docs/prism/docs/getting-started/01-installation.md)
   
@@ -134,12 +122,12 @@ of the workflow from the provider perspective.
 - `prism mock openapi.yaml`
 - `gauge run --env mock specs`
 
-### Run the spec against the real server
-- `gauge run specs`
-
 ### Run the spec using Prism as a validation proxy against the real server
 - `prism proxy openapi.yaml https://petstore.swagger.io/v2`
 - `gauge run --env validation-proxy specs`
+
+### Run the spec against the real server
+- `gauge run specs`
 
 
 ## Notes
