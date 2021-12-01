@@ -8,11 +8,8 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   tests:
-    name: ${{ matrix.gauge-env }} server
+    name: Mock server
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        gauge-env: [default, mock, validation-proxy]
     steps:
 
       - name: Checkout code
@@ -48,15 +45,10 @@ jobs:
         run: npm install -g @stoplight/prism-cli
 
       - name: Start Prism in mock mode
-        if: matrix.gauge-env == 'mock'
         run: prism mock openapi.yaml &
 
-      - name: Start Prism in validation proxy mode
-        if: matrix.gauge-env == 'validation-proxy'
-        run: prism proxy openapi.yaml https://petstore.swagger.io/v2 --errors &
-
-      - name: Run Gauge specs against ${{ matrix.gauge-env }} OpenAPI server
-        run: gauge run --env ${{ matrix.gauge-env }} specs
+      - name: Run Gauge specs against mock OpenAPI server
+        run: gauge run specs
 
       - name: Upload Gauge test report
         uses: actions/upload-artifact@v2
