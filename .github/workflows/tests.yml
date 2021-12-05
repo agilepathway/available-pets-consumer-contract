@@ -25,21 +25,11 @@ jobs:
         with:
           gauge-plugins: java, html-report
 
-      - name: Install OpenAPI Generator
-        run: npm install -g @openapitools/openapi-generator-cli
-
-      - name: Generate OpenAPI Java SDK client
-        run: openapi-generator-cli generate -i openapi.yaml -g java -o ./java-client-generated
-
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Install OpenAPI Java SDK client
-        working-directory: ./java-client-generated
-        run: mvn clean package
 
       - name: Install Prism
         run: npm install -g @stoplight/prism-cli
