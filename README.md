@@ -1,20 +1,20 @@
-# java-openapi-provider
+# available-pets-consumer-contract
 
 [![Gauge Badge](https://gauge.org/Gauge_Badge.svg)](https://gauge.org) 
-[![Gauge](https://github.com/agilepathway/java-gauge-openapi-example/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/java-gauge-openapi-example/actions?query=workflow%3A%22Gauge+specs%22+branch%3Amaster)
-[![reviewdog](https://github.com/agilepathway/java-gauge-openapi-example/workflows/reviewdog/badge.svg)](https://github.com/agilepathway/java-gauge-openapi-example/actions?query=workflow%3Areviewdog+event%3Apush+branch%3Amaster)
-[![License](https://img.shields.io/github/license/agilepathway/java-gauge-openapi-example?color=blue)](LICENSE)
-[<img src="https://github.com/agilepathway/gauge-openapi-example/wiki/images/openapi.png" width="87">](./openapi.yaml)[![OpenAPI Validator](https://validator.swagger.io/validator?url=https://raw.githubusercontent.com/agilepathway/java-gauge-openapi-example/master/openapi.yaml)](./openapi.yaml)
+[![Gauge](https://github.com/agilepathway/available-pets-consumer-contract/workflows/Gauge%20specs/badge.svg)](https://github.com/agilepathway/available-pets-consumer-contract/actions?query=workflow%3A%22Gauge+specs%22+branch%3Amaster)
+[![reviewdog](https://github.com/agilepathway/available-pets-consumer-contract/workflows/reviewdog/badge.svg)](https://github.com/agilepathway/available-pets-consumer-contract/actions?query=workflow%3Areviewdog+event%3Apush+branch%3Amaster)
+[![License](https://img.shields.io/github/license/agilepathway/available-pets-consumer-contract?color=blue)](LICENSE)
+[<img src="https://github.com/agilepathway/gauge-openapi-example/wiki/images/openapi.png" width="87">](./openapi.yaml)[![OpenAPI Validator](https://validator.swagger.io/validator?url=https://raw.githubusercontent.com/agilepathway/available-pets-consumer-contract/master/openapi.yaml)](./openapi.yaml)
 
-An example provider application in Java to demonstrate 
-[consumer-driven contract testing](https://www.martinfowler.com/articles/consumerDrivenContracts.html) in action, using
+An example contract repository to facilitate 
+[consumer-driven contract testing](https://www.martinfowler.com/articles/consumerDrivenContracts.html), also using
 [Specification by Example](https://gojko.net/2008/11/04/specifying-with-examples/) with [Gauge](https://gauge.org/),
 along with [OpenAPI](https://www.openapis.org/about) and [Prism](https://stoplight.io/prism).
 
-See also the companion [consumer web app](https://github.com/agilepathway/available-pets-consumer) to this provider.
+See also the companion [consumer web app](https://github.com/agilepathway/available-pets-consumer) to this contract.
 
 NB There is also a separate [Python example repository](https://github.com/agilepathway/gauge-openapi-example),
-demonstrating the same workflow but using Python as the test implementation language instead of Java.
+demonstrating a similar workflow but using Python as the test implementation language instead of Java.
 
 ___
 * [Example workflow](#example-workflow)
@@ -30,12 +30,12 @@ ___
 ## Example workflow
 
 Read the
-[README in the consumer app](https://github.com/agilepathway/available-pets-consumer#workflow-for-consumer-driven-changes-to-the-provider-api)
+[README in the consumer app](https://github.com/agilepathway/available-pets-consumer#workflow-for-consumer-driven-changes-to-the-provider-api-amending-the-contract-between-consumer-and-provider)
 first, as this gives the all-important consumer-driven perspective.  Then come back here and read the description below
-of the workflow from the provider perspective.
+of the workflow from the contract perspective.
 
 1. After using Specification by Example to drive their specification of a new feature (the ability to show which pets
-   are newly in the petstore, in our notional example), the consumer creates a feature branch in our provider repo and
+   are newly in the petstore, in our notional example), the consumer creates a feature branch in our contract repo and
    modifies the [OpenAPI spec](./openapi.yaml) with their proposed change, i.e. adding `new` to the list of defined 
    statuses:
 
@@ -47,7 +47,7 @@ of the workflow from the provider perspective.
       - new
    ```
 
-2. The consumer also adds a specification on our provider repo, e.g.
+2. The consumer also adds a specification on this contract repo, e.g.
 
    ```markdown
    ## Customers can see which pets are new in the pet store
@@ -56,37 +56,25 @@ of the workflow from the provider perspective.
    ```
 
    Note that this spec is identical to the spec which the consumer also created in their consumer repo.  This is a good 
-   thing as it describes the same consistent API contract in both the consumer and provider (it's not a disaster if the
-   specs have slightly different wording due to step implementation differences, but it's a good goal to keep them the
-   same or as close to the same as possible).
+   thing as it describes the same consistent API contract in both the consumer and the contract repos (it's not a
+   disaster if the specs have slightly different wording due to step implementation differences, but it's a good goal
+   to keep them the same or as close to the same as possible).
 
-   If the consumer team have the capability to add the step implementation for this spec in our provider repo, they 
-   should go ahead and do so on the same feature branch.  The step implementation on the provider side is a 
-   black-box API test using Prism, so implementing it does not require any knowledge of the internals of the provider
-   application.  This is a nice instance of using
-   [innersource](https://resources.github.com/whitepapers/introduction-to-innersource/) principles.  If not, then it's
-   also fine for the implementation to be left to the provider.
+   The consumer team should go ahead and add the step implementation for this spec.  The step implementation on the
+   contract repo is a black-box API test using Prism, so implementing it does not require any knowledge of the
+   internals of the provider application.  The contract repo is jointly owned by the consumer and the provider.  This
+   is a nice instance of using [innersource](https://resources.github.com/whitepapers/introduction-to-innersource/)
+   principles.  When the consumer is driving the change (which is the case in our example here and also what we want to
+   happen, normally), then it's natural that the consumer should also update the contract (including the Gauge spec and
+   step implementation as well as the OpenAPI spec).
 
-   Have a look at [the `new-pets` branch](https://github.com/agilepathway/java-openapi-provider/tree/new-pets) 
+   Have a look at
+   [the `new-pets-status` branch](https://github.com/agilepathway/java-openapi-provider/tree/new-pets-status) 
    and you can see these changes added by the consumer in the most recent commits there.
 
    Let's look more closely at how Prism is helping us here.
    [Prism](https://stoplight.io/prism) is a mock server that effortlessly serves example responses based just on our
    OpenAPI spec. All it needs is the OpenAPI spec, nothing more, nothing less.  That's very powerful.
-
-   Our CI/CD pipeline uses Prism to run our Gauge specs on every push to every branch.  The tests run a couple of
-   times in different modes:
-   - mock mode: Prism is used as a mock server, i.e. our Gauge specs run against Prism with no interaction with the
-     real service
-   - [validation proxy mode](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md): Prism proxies
-     through to the real server and errors if there are any mismatches between the OpenAPI spec and what the real
-     server accepts and responds with.  This is incredibly powerful as it ensures that there is zero discrepancy
-     between the OpenAPI spec and the real service, in terms of the API contract expressed through our consumer-driven
-     Gauge specs.
-   
-   If we 
-   [look at the CI/CD pipeline for our `new-pets` branch](https://github.com/agilepathway/java-openapi-provider/runs/4272344093?check_suite_focus=true)
-   then we will see that the tests pass in mock mode and fail in validation proxy mode.  This is entirely expected and a good thing, as it indicates that we the provider need to go ahead and amend the microservice to make the failing test pass.  This is real consumer-driven development in action.
 
 3. So the provider can now go ahead and make the necessary changes to their microservice. 
 
