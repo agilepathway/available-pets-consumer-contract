@@ -13,9 +13,6 @@ along with [OpenAPI](https://www.openapis.org/about) and [Prism](https://stoplig
 
 See also the companion [consumer web app](https://github.com/agilepathway/available-pets-consumer) to this contract.
 
-NB There is also a separate [Python example repository](https://github.com/agilepathway/gauge-openapi-example),
-demonstrating a similar workflow but using Python as the test implementation language instead of Java.
-
 ___
 * [Example workflow](#example-workflow)
 * [Benefits of this approach](#benefits-of-this-approach)
@@ -69,7 +66,7 @@ of the workflow from the contract perspective.
    step implementation as well as the OpenAPI spec).
 
    Have a look at
-   [the `new-pets-status` branch](https://github.com/agilepathway/java-openapi-provider/tree/new-pets-status) 
+   [the `new-pets-status` branch](https://github.com/agilepathway/available-pets-consumer-contract/tree/new-pets-status) 
    and you can see these changes added by the consumer in the most recent commits there.
 
    Let's look more closely at how Prism is helping us here.
@@ -99,7 +96,7 @@ of the workflow from the contract perspective.
 7. [Consumer-Driven-Contract-Testing](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md#end-to-end-contract-testing)
    - allows service design to be driven by the verified needs of consumers
    - [ensures that consumer test stubs stay in sync with the implementation](https://meta.stoplight.io/docs/prism/docs/guides/03-validation-proxy.md#assisting-api-consumer-integration)
-8. Enables different languages to be used easily - can choose Python for the client SDK and Java for the server implementation, for instance
+8. Enables different languages to be used easily - can choose Python for the contract tests and Java for the API implementation, for instance
 
 ## Running the specs
 ### Prerequisites
