@@ -11,7 +11,9 @@ An example contract repository to facilitate
 [Specification by Example](https://gojko.net/2008/11/04/specifying-with-examples/) with [Gauge](https://gauge.org/),
 along with [OpenAPI](https://www.openapis.org/about) and [Prism](https://stoplight.io/prism).
 
-See also the companion [consumer web app](https://github.com/agilepathway/available-pets-consumer) to this contract.
+See also the companion [consumer web app](https://github.com/agilepathway/available-pets-consumer) and
+[provider Java microservice](https://github.com/agilepathway/petstore-service), which this contact repo
+represents the contract between.
 
 ___
 * [Example workflow](#example-workflow)
