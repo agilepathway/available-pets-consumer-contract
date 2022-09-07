@@ -42,6 +42,9 @@ jobs:
         run: prism mock openapi.yaml &
 
       - name: Run Gauge specs against mock OpenAPI server
+        # Env var is temporary workaround for https://github.com/getgauge/gauge-python/issues/256
+        env:
+          PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
         run: gauge run specs
 
       - name: Upload Gauge test report
