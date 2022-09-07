@@ -1,7 +1,7 @@
 ---
 name: Deploy mocks on Heroku
 on:  # yamllint disable-line rule:truthy
-  # Run the tests on every push to master branch
+  # Deploy the mocks on Heroku on every push to master branch
   push:
     branches:
       - master
